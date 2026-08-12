@@ -1,28 +1,26 @@
-import json
+import time
 
-class DataProcessor:
-    def __init__(self, data):
-        self.data = data
+class PerformanceProcessor:
+    def __init__(self):
+        self.data = []
 
-    def filter_by_key(self, key, value):
-        return [item for item in self.data if item.get(key) == value]
+    def add_data(self, value):
+        self.data.append(value)
 
-    def sort_by_key(self, key, reverse=False):
-        return sorted(self.data, key=lambda x: x.get(key), reverse=reverse)
+    def process_data(self):
+        start_time = time.perf_counter()
+        # Using list comprehension for better performance
+        results = [self._compute(value) for value in self.data]
+        end_time = time.perf_counter()
+        print(f"Processing time: {end_time - start_time:.4f} seconds")
+        return results
 
-    def to_json(self):
-        return json.dumps(self.data)
+    def _compute(self, value):
+        # Simulate some intensive computation
+        return value ** 2
 
 if __name__ == '__main__':
-    sample_data = [
-        {'id': 1, 'name': 'Alice', 'age': 30},
-        {'id': 2, 'name': 'Bob', 'age': 25},
-        {'id': 3, 'name': 'Charlie', 'age': 35}
-    ]
-    processor = DataProcessor(sample_data)
-    filtered_data = processor.filter_by_key('age', 30)
-    sorted_data = processor.sort_by_key('name')
-    json_output = processor.to_json()
-    print(filtered_data)
-    print(sorted_data)
-    print(json_output)
+    processor = PerformanceProcessor()
+    for i in range(1000):
+        processor.add_data(i)
+    processor.process_data()
