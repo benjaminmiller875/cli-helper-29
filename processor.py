@@ -1,26 +1,28 @@
-import time
+import json
 
-class PerformanceProcessor:
-    def __init__(self):
-        self.data = []
+class RobloxDataProcessor:
+    def __init__(self, data):
+        self.raw_data = data
 
-    def add_data(self, value):
-        self.data.append(value)
+    def filter_users(self, min_age=13):
+        return [user for user in self.raw_data['users'] if user['age'] >= min_age]
 
-    def process_data(self):
-        start_time = time.perf_counter()
-        # Using list comprehension for better performance
-        results = [self._compute(value) for value in self.data]
-        end_time = time.perf_counter()
-        print(f"Processing time: {end_time - start_time:.4f} seconds")
-        return results
+    def aggregate_user_data(self):
+        user_count = len(self.raw_data['users'])
+        return {'user_count': user_count}
 
-    def _compute(self, value):
-        # Simulate some intensive computation
-        return value ** 2
+    def to_json(self, data):
+        return json.dumps(data, indent=2)
 
 if __name__ == '__main__':
-    processor = PerformanceProcessor()
-    for i in range(1000):
-        processor.add_data(i)
-    processor.process_data()
+    sample_data = {
+        'users': [
+            {'name': 'Alice', 'age': 12},
+            {'name': 'Bob', 'age': 14},
+            {'name': 'Charlie', 'age': 16}
+        ]
+    }
+    processor = RobloxDataProcessor(sample_data)
+    filtered_users = processor.filter_users()
+    aggregated_data = processor.aggregate_user_data()
+    print(processor.to_json({'filtered_users': filtered_users, 'aggregated_data': aggregated_data}))
