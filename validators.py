@@ -1,20 +1,19 @@
 import re
 
-def validate_username(username):
-    if not isinstance(username, str):
-        return False
-    return 3 <= len(username) <= 20 and re.match(r'^[A-Za-z0-9_]*$', username)
+def is_valid_username(username):
+    return bool(re.match(r'^[A-Za-z0-9_]{3,20}$', username))
 
+def is_valid_password(password):
+    return (6 <= len(password) <= 20 and 
+            any(c.isdigit() for c in password) and 
+            any(c.isalpha() for c in password))
 
-def validate_password(password):
-    if not isinstance(password, str):
-        return False
-    return 8 <= len(password) <= 32 and any(char.isdigit() for char in password) and any(char.isalpha() for char in password)
+def is_valid_email(email):
+    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return bool(re.match(email_regex, email))
 
+def is_valid_game_id(game_id):
+    return isinstance(game_id, int) and game_id > 0
 
-def validate_value(value, min_value, max_value):
-    return isinstance(value, (int, float)) and min_value <= value <= max_value
-
-
-def validate_positive_integer(value):
-    return isinstance(value, int) and value > 0
+def is_valid_asset_id(asset_id):
+    return isinstance(asset_id, int) and asset_id > 0
