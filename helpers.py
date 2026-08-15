@@ -1,36 +1,28 @@
 import json
-import os
+import requests
+
+def fetch_roblox_data(asset_id):
+    url = f'https://api.roblox.com/asset/?id={asset_id}'
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
 
 
-def load_config(file_path):
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Config file not found: {file_path}")
-    with open(file_path, 'r') as file:
-        return json.load(file)
+def save_data_to_json(data, filename):
+    with open(filename, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
 
 
-def save_data(file_path, data):
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=4)
+def load_data_from_json(filename):
+    with open(filename, 'r') as json_file:
+        return json.load(json_file)
 
 
-def find_item_in_list(item, item_list):
-    return item in item_list
+def get_asset_name(asset_id):
+    data = fetch_roblox_data(asset_id)
+    return data.get('name', 'Unknown Asset')
 
 
-def filter_dict_by_keys(input_dict, keys):
-    return {key: input_dict[key] for key in keys if key in input_dict}
-
-
-def is_valid_identifier(identifier):
-    return identifier.isidentifier()  
-
-
-def read_file_lines(file_path):
-    with open(file_path, 'r') as file:
-        return file.readlines()
-
-
-def write_file_lines(file_path, lines):
-    with open(file_path, 'w') as file:
-        file.writelines(lines)
+def fetch_and_save_asset_name(asset_id, filename):
+    name = get_asset_name(asset_id)
+    save_data_to_json({'id': asset_id, 'name': name}, filename)
