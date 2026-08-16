@@ -1,24 +1,28 @@
-from typing import Dict, Any
+import json
+import os
 
-class Config:
-    def __init__(self, settings: Dict[str, Any]) -> None:
-        self.settings = settings
+DEFAULT_CONFIG = {
+    'setting1': 'default_value1',
+    'setting2': 'default_value2',
+    'setting3': 10
+}
 
-    def get(self, key: str, default: Any = None) -> Any:
-        """Retrieve setting by key with optional default value."""
-        return self.settings.get(key, default)
+class ConfigLoader:
+    def __init__(self, config_file='config.json'):
+        self.config_file = config_file
+        self.config = DEFAULT_CONFIG.copy()
+        self.load_config()
 
-    def set(self, key: str, value: Any) -> None:
-        """Set configuration value for a specified key."""
-        self.settings[key] = value
+    def load_config(self):
+        if os.path.exists(self.config_file):
+            with open(self.config_file, 'r') as f:
+                user_config = json.load(f)
+                self.config.update(user_config)
 
-    def all(self) -> Dict[str, Any]:
-        """Return all configurations as a dictionary."""
-        return self.settings.copy()
+    def get(self, key, default=None):
+        return self.config.get(key, default)
 
-# Example usage
-if __name__ == '__main__':
-    config = Config({'url': 'http://example.com', 'retry': 3})
-    print(config.get('url'))
-    config.set('timeout', 30)
-    print(config.all())
+    def set(self, key, value):
+        self.config[key] = value
+        with open(self.config_file, 'w') as f:
+            json.dump(self.config, f, indent=4)
