@@ -1,25 +1,27 @@
-import requests
-import time
+import os
+import json
 
-class NetworkError(Exception):
-    pass
+class RobloxClient:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.base_url = 'https://api.roblox.com'
 
-def retry_request(url, max_retries=3, delay=2):
-    for attempt in range(max_retries):
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException:
-            if attempt < max_retries - 1:
-                time.sleep(delay)
-            else:
-                raise NetworkError(f'Failed to retrieve data from {url} after {max_retries} attempts')
+    def _request(self, endpoint, params=None):
+        url = f'{self.base_url}/{endpoint}'
+        headers = {'Authorization': f'Bearer {self.api_key}'}
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        return response.json()
 
-if __name__ == '__main__':
-    url = 'https://api.example.com/data'
-    try:
-        data = retry_request(url)
-        print(data)
-    except NetworkError as e:
-        print(e)
+    def get_user_info(self, user_id):
+        endpoint = f'users/{user_id}'
+        return self._request(endpoint)
+
+    def get_game_info(self, game_id):
+        endpoint = f'games/{game_id}'
+        return self._request(endpoint)
+
+    def search_games(self, keyword):
+        endpoint = 'games/search'
+        params = {'keyword': keyword}
+        return self._request(endpoint, params)
