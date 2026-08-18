@@ -1,28 +1,27 @@
 import json
 import os
 
-DEFAULT_CONFIG = {
-    'setting1': 'default_value1',
-    'setting2': 'default_value2',
-    'setting3': 10
-}
-
 class ConfigLoader:
-    def __init__(self, config_file='config.json'):
+    def __init__(self, default_config: dict, config_file: str):
         self.config_file = config_file
-        self.config = DEFAULT_CONFIG.copy()
-        self.load_config()
+        self.default_config = default_config
+        self.config = self.load_config()
 
-    def load_config(self):
+    def load_config(self) -> dict:
         if os.path.exists(self.config_file):
             with open(self.config_file, 'r') as f:
-                user_config = json.load(f)
-                self.config.update(user_config)
+                try:
+                    return json.load(f)
+                except json.JSONDecodeError:
+                    return self.default_config
+        return self.default_config
 
-    def get(self, key, default=None):
-        return self.config.get(key, default)
+    def get(self, key: str):
+        return self.config.get(key, self.default_config.get(key))
 
-    def set(self, key, value):
-        self.config[key] = value
-        with open(self.config_file, 'w') as f:
-            json.dump(self.config, f, indent=4)
+# Example usage
+if __name__ == '__main__':
+    defaults = {'setting1': 'default_value', 'setting2': 10}
+    loader = ConfigLoader(defaults, 'config.json')
+    print(loader.get('setting1'))
+    print(loader.get('setting3'))  # returns default value
