@@ -1,32 +1,17 @@
-import random
-import string
+import time
+import requests
+from requests.exceptions import RequestException
 
-
-def generate_random_string(length=10):
-    characters = string.ascii_letters + string.digits
-    return ''.join(random.choice(characters) for _ in range(length))
-
-
-def is_valid_username(username):
-    return 3 <= len(username) <= 20 and username.isalnum()
-
-
-def format_number(value):
-    if not isinstance(value, (int, float)):
-        raise ValueError('Input must be a number')
-    return '{:,.2f}'.format(value)
-
-
-def clamp(value, min_value, max_value):
-    return max(min(value, max_value), min_value)
-
-
-def parse_integer(value, default=0):
-    try:
-        return int(value)
-    except (ValueError, TypeError):
-        return default
-
-
-def get_random_element(elements):
-    return random.choice(elements)
+def retry_request(url, max_retries=3, delay=2):
+    attempts = 0
+    while attempts < max_retries:
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            return response
+        except RequestException:
+            attempts += 1
+            if attempts < max_retries:
+                time.sleep(delay)
+            else:
+                raise
